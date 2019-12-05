@@ -10,7 +10,7 @@ mcl20 = 20.28;
 mc2h4cl20 = 1000;
 mhcl0 = 0.0;
 mc2h3cl30 = 0.0;
-Vr = 100; %m^3
+Vr = 10; %m^3
 
 
 %%%%%%%%%%%%%
@@ -67,15 +67,23 @@ disp(Cc2h40)
 %define rho and mw of C2H4Cl2 so the units when divided are mols/m3
 mw = mwc2h4cl2; %g/mols
 rho = rhoc2h4cl2*100^3; %g/m^3
-
+iter = 1000;
+Vrint = Vr/iter;
+Vr = 0;
+Vrsoln = zeros(iter,1);
+Soln = zeros(iter,5)
+for i=1:iter
+Vr = Vr + Vrint;
+Vr(i) = Vr;
 syms Cc2h4 Ccl2 Vo Chcl Cc2h3cl3;
-[Cc2h4, Ccl2, Vo, Chcl, Cc2h3cl3] = vpasolve([...
+[Cc2h4_, Ccl2_, Vo_, Chcl_, Cc2h3cl3_] = vpasolve([...
     Vi*Cc2h40 - k1*Cc2h4*Ccl2*Vr - k2*Cc2h4*Ccl2^2*Vr == Vo*Cc2h4...
     Vi*Ccl20 - k1*Cc2h4*Ccl2*Vr - 2*k2*Cc2h4*Ccl2^2*Vr - k3*rho/mw*Ccl2*Vr == Vo*Ccl2...
     Vi + k1*Cc2h4*Ccl2*Vr - k3*rho/mw*Ccl2*Vr == Vo...
     Vi*Chcl0 + k2*Cc2h4*Ccl2^2*Vr +  k3*rho/mw*Ccl2*Vr == Vo*Chcl...
     Vi*Cc2h3cl30 + k2*Cc2h4*Ccl2^2*Vr + k3*rho/mw*Ccl2*Vr == Vo*Cc2h3cl3],...
     [Cc2h4,Ccl2,Vo,Chcl, Cc2h3cl3], [0 Inf; 0 Inf; 0 Inf; 0 Inf; 0 Inf]);
-disp([Cc2h4, Ccl2, Vo, Chcl, Cc2h3cl3])
+Soln(i) = [Cc2h4_, Ccl2_, Vo_, Chcl_, Cc2h3cl3_];
+end
 
-
+%1-Cc2h4/Cc2h40
