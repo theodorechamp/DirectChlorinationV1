@@ -75,6 +75,7 @@ syms Cc2h4 Ccl2 Vo Chcl Cc2h3cl3;
     Vi + k1*Cc2h4*Ccl2*Vr - k3*rho/mw*Ccl2*Vr == Vo...
     Vi*Chcl0 + k2*Cc2h4*Ccl2^2*Vr +  k3*rho/mw*Ccl2*Vr == Vo*Chcl...
     Vi*Cc2h3cl30 + k2*Cc2h4*Ccl2^2*Vr + k3*rho/mw*Ccl2*Vr == Vo*Cc2h3cl3],...
-    [Cc2h4,Ccl2,Vo,Chcl, Cc2h3cl3], [300; 300; 1; 10; 10]);
-disp(Cc2h4[1] + 
+    [Cc2h4,Ccl2,Vo,Chcl, Cc2h3cl3], [0 Inf; 0 Inf; 0 Inf; 0 Inf; 0 Inf]);
+disp([Cc2h4, Ccl2, Vo, Chcl, Cc2h3cl3])
+
 
