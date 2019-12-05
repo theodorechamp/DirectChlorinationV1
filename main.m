@@ -10,7 +10,7 @@ mcl20 = 20.28;
 mc2h4cl20 = 1000;
 mhcl0 = 0.0;
 mc2h3cl30 = 0.0;
-Vr = 1; %m^3
+Vr = 100; %m^3
 
 
 %%%%%%%%%%%%%
@@ -65,8 +65,8 @@ disp(Cc2h40)
 % Equations %
 %%%%%%%%%%%%%
 %define rho and mw of C2H4Cl2 so the units when divided are mols/m3
-mw = mwc2h4cl2;
-rho = rhoc2h4cl2*100^3;
+mw = mwc2h4cl2; %g/mols
+rho = rhoc2h4cl2*100^3; %g/m^3
 
 syms Cc2h4 Ccl2 Vo Chcl Cc2h3cl3;
 Soln = vpasolve([Vi*Cc2h40 - k1*Cc2h4*Ccl2*Vr - k2*Cc2h4*Ccl2*Vr == Vo*Cc2h4, Vi*Ccl20 - k1*Cc2h4*Ccl2*Vr - 2*k2*Cc2h4*Ccl2^2*Vr - k3*rho/mw*Ccl2*Vr == Vo*Ccl2, Vi + k1*Cc2h4*Ccl2*Vr - k3*rho/mw*Ccl2*Vr == Vo, Vi*Chcl0 + k2*Cc2h4*Ccl2^2*Vr +  k3*rho/mw*Ccl2*Vr == Vo*Chcl, Vi*Cc2h3cl30 + k2*Cc2h4*Ccl2^2*Vr + k3*rho/mw*Ccl2 == Vo*Ccl2], [Cc2h4,Ccl2,Vo,Chcl, Cc2h3cl3], [300; 300; 1; 10; 10]);
