@@ -50,7 +50,7 @@ xc2h3cl30 = nc2h3cl30/ntot;
 % Volume of EDC
 
 Vi= mc2h4cl20 / rhoc2h4cl2 / 1000; %m^3/s
-% calculate concentrations in [mol/g]
+% calculate concentrations in [mol/m3]
 % Ci0 refers to inlet concentration, Ci refers to reactor and outlet
 Cc2h40 = nc2h40/Vi;
 Ccl20 = ncl20/Vi;
@@ -69,5 +69,12 @@ mw = mwc2h4cl2; %g/mols
 rho = rhoc2h4cl2*100^3; %g/m^3
 
 syms Cc2h4 Ccl2 Vo Chcl Cc2h3cl3;
-Soln = vpasolve([Vi*Cc2h40 - k1*Cc2h4*Ccl2*Vr - k2*Cc2h4*Ccl2*Vr == Vo*Cc2h4, Vi*Ccl20 - k1*Cc2h4*Ccl2*Vr - 2*k2*Cc2h4*Ccl2^2*Vr - k3*rho/mw*Ccl2*Vr == Vo*Ccl2, Vi + k1*Cc2h4*Ccl2*Vr - k3*rho/mw*Ccl2*Vr == Vo, Vi*Chcl0 + k2*Cc2h4*Ccl2^2*Vr +  k3*rho/mw*Ccl2*Vr == Vo*Chcl, Vi*Cc2h3cl30 + k2*Cc2h4*Ccl2^2*Vr + k3*rho/mw*Ccl2 == Vo*Ccl2], [Cc2h4,Ccl2,Vo,Chcl, Cc2h3cl3], [300; 300; 1; 10; 10]);
-disp(Soln)
+[Cc2h4, Ccl2, Vo, Chcl, Cc2h3cl3] = vpasolve([...
+    Vi*Cc2h40 - k1*Cc2h4*Ccl2*Vr - k2*Cc2h4*Ccl2^2*Vr == Vo*Cc2h4...
+    Vi*Ccl20 - k1*Cc2h4*Ccl2*Vr - 2*k2*Cc2h4*Ccl2^2*Vr - k3*rho/mw*Ccl2*Vr == Vo*Ccl2...
+    Vi + k1*Cc2h4*Ccl2*Vr - k3*rho/mw*Ccl2*Vr == Vo...
+    Vi*Chcl0 + k2*Cc2h4*Ccl2^2*Vr +  k3*rho/mw*Ccl2*Vr == Vo*Chcl...
+    Vi*Cc2h3cl30 + k2*Cc2h4*Ccl2^2*Vr + k3*rho/mw*Ccl2*Vr == Vo*Cc2h3cl3],...
+    [Cc2h4,Ccl2,Vo,Chcl, Cc2h3cl3], [300; 300; 1; 10; 10]);
+disp(Cc2h4[1] + 
+
