@@ -5,57 +5,69 @@ clear
 %%%%%%%%%%
 P = 101.325; % kPa
 T = 333; % K
-mc2h40 = 0.0; % kg/s, from MatBal
-mcl20 = 0.0;
-mc2h4cl20 = 0.0;
+mc2h40 = 7.1; % kg/s, from MatBal
+mcl20 = 20.28;
+mc2h4cl20 = 1000;
 mhcl0 = 0.0;
 mc2h3cl30 = 0.0;
+Vr = 1; %m^3
 
 
 %%%%%%%%%%%%%
 % Constants %
 %%%%%%%%%%%%%
 R = 8.314; % [L kPa / mol K]
-mwc2h4 = 28.05;
+mwc2h4 = 28.05; % [kg / kmol]
 mwcl2 = 70.9;
 mwc2h4cl2 = 98.96;
 mwhcl = 36.46;
 mwc2h3cl3 = 133.4;
+rhoc2h4cl2 = 1.25; %g/cm^3
+
+k1 = .132; %m3 mol-1 s-1
+k2 = 0.0239; %m3 mol-2 s-1
+k3 = 6.12*10^-9; %m3 mol-1 s-1
 
 %%%%%%%%%
 % Logic %
 %%%%%%%%%
 
-% Convert to molar flows [kmols/s]
-nc2h40 = mwc2h4 * mc2h40;
-ncl20 = mwcl2 * mcl20;
-nc2h4cl20 = mwc2h4cl2 * mc2h4cl20;
-nhcl0 = mwhcl * mhcl0;
-nc2h3cl30 = mwc2h3cl3 * mwc2h3cl30;
+% Convert to molar flows [mols/s]
+nc2h40 = mc2h40/mwc2h4*1000;
+ncl20 = mcl20/mwcl2*1000;
+nc2h4cl20 = mc2h4cl20/mwc2h4cl2*1000;
+nhcl0 = mhcl0/mwhcl*1000;
+nc2h3cl30 = mc2h3cl30/mwc2h3cl3*1000;
 
 % Composition of inlet
-ntot = nc2h4 + ncl20 + nc2h4cl20 + nhcl0 + nc2h3cl3;
-xc2h40 = nc2h4/ntot;
+ntot = nc2h40 + ncl20 + nc2h4cl20 + nhcl0 + nc2h3cl30;
+xc2h40 = nc2h40/ntot;
 xcl20 = ncl20/ntot;
 xc2h4cl20 = nc2h4cl20/ntot;
 xhcl0 = nhcl0/ntot;
-xc2h3cl30 = nc2h3cl3/ntot;
+xc2h3cl30 = nc2h3cl30/ntot;
 
-% calculate concentrations in [kmols/L]
+% Volume of EDC
+
+Vi= mc2h4cl20 / rhoc2h4cl2 / 1000; %m^3/s
+% calculate concentrations in [mol/g]
 % Ci0 refers to inlet concentration, Ci refers to reactor and outlet
-Ctot = P/(R*T);
-Cc2h40 = Ctot*xc2h40;
-Ccl2 = Ctot*xcl2;
-Cc2h4cl20 = Ctot*xc2h4cl20;
-Chcl0 = Ctot*xhcl0;
-Cc2h3cl30 = Ctot*xc2h3cl30;
+Cc2h40 = nc2h40/Vi;
+Ccl20 = ncl20/Vi;
+Cc2h4cl20 = nc2h4cl20/Vi;
+Chcl0 = nhcl0/Vi;
+Cc2h3cl30 = nc2h3cl30/Vi;
 
-Vin = ntot*
+disp(Cc2h40)
+
 
 %%%%%%%%%%%%%
 % Equations %
 %%%%%%%%%%%%%
+%define rho and mw of C2H4Cl2 so the units when divided are mols/m3
+mw = mwc2h4cl2;
+rho = rhoc2h4cl2*100^3;
 
-syms x y;
-Soln = vpasolve([y == x + 2, y == x^2], [x,y], [0 Inf; 0 Inf]);
-disp(Soln.x)
+syms Cc2h4 Ccl2 Vo Chcl Cc2h3cl3;
+Soln = vpasolve([Vi*Cc2h40 - k1*Cc2h4*Ccl2*Vr - k2*Cc2h4*Ccl2*Vr == Vo*Cc2h4, Vi*Ccl20 - k1*Cc2h4*Ccl2*Vr - 2*k2*Cc2h4*Ccl2^2*Vr - k3*rho/mw*Ccl2*Vr == Vo*Ccl2, Vi + k1*Cc2h4*Ccl2*Vr - k3*rho/mw*Ccl2*Vr == Vo, Vi*Chcl0 + k2*Cc2h4*Ccl2^2*Vr +  k3*rho/mw*Ccl2*Vr == Vo*Chcl, Vi*Cc2h3cl30 + k2*Cc2h4*Ccl2^2*Vr + k3*rho/mw*Ccl2 == Vo*Ccl2], [Cc2h4,Ccl2,Vo,Chcl, Cc2h3cl3], [300; 300; 1; 10; 10]);
+disp(Soln)
