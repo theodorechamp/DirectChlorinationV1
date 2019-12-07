@@ -10,7 +10,7 @@ mcl20 = 20.28;
 mc2h4cl20 = 1000;
 mhcl0 = 0.0;
 mc2h3cl30 = 0.0;
-Vr = 100; %m^3
+%Vr = 10; %m^3
 
 
 %%%%%%%%%%%%%
@@ -58,8 +58,6 @@ Cc2h4cl20 = nc2h4cl20/Vi;
 Chcl0 = nhcl0/Vi;
 Cc2h3cl30 = nc2h3cl30/Vi;
 
-disp(Cc2h40)
-
 
 %%%%%%%%%%%%%
 % Equations %
@@ -68,14 +66,44 @@ disp(Cc2h40)
 mw = mwc2h4cl2; %g/mols
 rho = rhoc2h4cl2*100^3; %g/m^3
 
-syms Cc2h4 Ccl2 Vo Chcl Cc2h3cl3;
-[Cc2h4, Ccl2, Vo, Chcl, Cc2h3cl3] = vpasolve([...
-    Vi*Cc2h40 - k1*Cc2h4*Ccl2*Vr - k2*Cc2h4*Ccl2^2*Vr == Vo*Cc2h4...
-    Vi*Ccl20 - k1*Cc2h4*Ccl2*Vr - 2*k2*Cc2h4*Ccl2^2*Vr - k3*rho/mw*Ccl2*Vr == Vo*Ccl2...
-    Vi + k1*Cc2h4*Ccl2*Vr - k3*rho/mw*Ccl2*Vr == Vo...
-    Vi*Chcl0 + k2*Cc2h4*Ccl2^2*Vr +  k3*rho/mw*Ccl2*Vr == Vo*Chcl...
-    Vi*Cc2h3cl30 + k2*Cc2h4*Ccl2^2*Vr + k3*rho/mw*Ccl2*Vr == Vo*Cc2h3cl3],...
-    [Cc2h4,Ccl2,Vo,Chcl, Cc2h3cl3], [0 Inf; 0 Inf; 0 Inf; 0 Inf; 0 Inf]);
-disp([Cc2h4, Ccl2, Vo, Chcl, Cc2h3cl3])
+iter = 20;
+Vlow=1;
+Vhigh=10;
+Vr= linspace(Vlow,Vhigh,iter);
+Soln = zeros(iter,6);
+id = 'symbolic:numeric:NumericalInstability';
+warning('off',id);
+for i=1:iter
+    syms Cc2h4 Ccl2 Vo Chcl Cc2h3cl3;
+    [Cc2h4_, Ccl2_, Vo_, Chcl_, Cc2h3cl3_] = vpasolve([...
+        Vi*Cc2h40 - k1*Cc2h4*Ccl2*Vr(i) - k2*Cc2h4*Ccl2^2*Vr(i) == Vo*Cc2h4...
+        Vi*Ccl20 - k1*Cc2h4*Ccl2*Vr(i) - 2*k2*Cc2h4*Ccl2^2*Vr(i) - k3*rho/mw*Ccl2*Vr(i) == Vo*Ccl2...
+        Vi + k1*Cc2h4*Ccl2*Vr(i) - k3*rho/mw*Ccl2*Vr(i) == Vo...
+        Vi*Chcl0 + k2*Cc2h4*Ccl2^2*Vr(i) +  k3*rho/mw*Ccl2*Vr(i) == Vo*Chcl...
+        Vi*Cc2h3cl30 + k2*Cc2h4*Ccl2^2*Vr(i) + k3*rho/mw*Ccl2*Vr(i) == Vo*Cc2h3cl3],...
+        [Cc2h4,Ccl2,Vo,Chcl, Cc2h3cl3], [0 Inf; 0 Inf; 0 Inf; 0 Inf; 0 Inf]);
+    conv = 1-Cc2h4_/Cc2h40;
+    Soln(i,:) = [double(Cc2h4_), double(Ccl2_), double(Vo_), double(Chcl_), double(Cc2h3cl3_), conv]';
+end
 
+%%%%%%%%%%
+% Plotting %
+%%%%%%%%%%
 
+% Figure 1 -- Species exit concentration vs. reactor volume
+figure(1)
+plot(Vr, Soln(:,1),'-d',Vr,Soln(:,2),'-*',Vr,Soln(:,4),'-o',Vr,Soln(:,5),'-p')
+grid
+title('Species Exit Concentration vs. Reactor Volume')
+legend('ConcC_2H_4', 'ConcCl_2', 'ConcHCl', 'ConcC_2H_3Cl_3')
+xlabel('Reactor Volume - m^3')
+ylabel('Exit Conncentration - mol/m^3')
+
+% Figure 2 -- Ethylene conversion vs. reactor volume
+figure(2)
+plot(Vr, Soln(:,6))
+grid
+title('Ethylene Conversion vs. Reactor Volume')
+xlabel('Reactor Volume - m^3')
+ylabel('Ethylene Conversion')
+%1-Cc2h4/Cc2h40
